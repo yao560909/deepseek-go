@@ -28,26 +28,11 @@ func (r *ChatCompletionService) New(ctx context.Context, body ChatCompletionNewP
 	return
 }
 
-func UserMessage(content string) ChatCompletionMessageParamUnion {
-	return UserMessageParts(TextPart(content))
-}
-
-func UserMessageParts(parts ...ChatCompletionContentPartUnionParam) ChatCompletionUserMessageParam {
+func UserMessage(content string) ChatCompletionUserMessageParam {
 	return ChatCompletionUserMessageParam{
 		Role:    F(ChatCompletionUserMessageParamRoleUser),
-		Content: F(parts),
+		Content: F(content),
 	}
-}
-
-func TextPart(content string) ChatCompletionContentPartTextParam {
-	return ChatCompletionContentPartTextParam{
-		Type: F(ChatCompletionContentPartTextTypeText),
-		Text: F(content),
-	}
-}
-
-type ChatCompletionContentPartUnionParam interface {
-	implementsChatCompletionContentPartUnionParam()
 }
 
 type ChatCompletionMessageParamUnion interface {
@@ -63,15 +48,6 @@ func (r ChatCompletionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-type ChatCompletionContentPartTextParam struct {
-	// The text content.
-	Text param.Field[string] `json:"text,required"`
-	// The type of the content part.
-	Type param.Field[ChatCompletionContentPartTextType] `json:"type,required"`
-}
-
-func (r ChatCompletionContentPartTextParam) implementsChatCompletionContentPartUnionParam() {}
-
 // The type of the content part.
 type ChatCompletionContentPartTextType string
 
@@ -81,7 +57,7 @@ const (
 
 type ChatCompletionUserMessageParam struct {
 	// The contents of the user message.
-	Content param.Field[[]ChatCompletionContentPartUnionParam] `json:"content,required"`
+	Content param.Field[string] `json:"content,required"`
 	// The role of the messages author, in this case `user`.
 	Role param.Field[ChatCompletionUserMessageParamRole] `json:"role,required"`
 	// An optional name for the participant. Provides the model information to
