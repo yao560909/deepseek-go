@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/yao560909/deepseek-go/internal/requestconfig"
 	"log"
+	"net/http"
 	"net/url"
 )
 
@@ -33,6 +34,16 @@ func WithAPIKey(value string) RequestOption {
 func WithHeader(key, value string) RequestOption {
 	return func(r *requestconfig.RequestConfig) error {
 		r.Request.Header.Set(key, value)
+		return nil
+	}
+}
+
+type MiddlewareNext = func(*http.Request) (*http.Response, error)
+type Middleware = func(*http.Request, MiddlewareNext) (*http.Response, error)
+
+func WithMiddleware(middlewares ...Middleware) RequestOption {
+	return func(r *requestconfig.RequestConfig) error {
+		r.Middlewares = append(r.Middlewares, middlewares...)
 		return nil
 	}
 }
