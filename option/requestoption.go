@@ -1,7 +1,9 @@
 package option
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/tidwall/sjson"
 	"github.com/yao560909/deepseek-go/internal/requestconfig"
 	"log"
 	"net/http"
@@ -28,6 +30,22 @@ func WithAPIKey(value string) RequestOption {
 	return func(r *requestconfig.RequestConfig) error {
 		r.APIKey = value
 		return r.Apply(WithHeader("authorization", fmt.Sprintf("Bearer %s", r.APIKey)))
+	}
+}
+
+func WithJSONSet(key string, value interface{}) RequestOption {
+	return func(r *requestconfig.RequestConfig) (err error) {
+		if buffer, ok := r.Body.(*bytes.Buffer); ok {
+			b := buffer.Bytes()
+			b, err = sjson.SetBytes(b, key, value)
+			if err != nil {
+				return err
+			}
+			r.Body = bytes.NewBuffer(b)
+			return nil
+		}
+
+		return fmt.Errorf("cannot use WithJSONSet on a body that is not serialized as *bytes.Buffer")
 	}
 }
 
