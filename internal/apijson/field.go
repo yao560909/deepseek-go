@@ -16,6 +16,11 @@ type Field struct {
 	status status
 }
 
+func (j Field) IsNull() bool    { return j.status <= null }
+func (j Field) IsMissing() bool { return j.status == missing }
+func (j Field) IsInvalid() bool { return j.status == invalid }
+func (j Field) Raw() string     { return j.raw }
+
 func getSubField(root reflect.Value, index []int, name string) reflect.Value {
 	strct := root.FieldByIndex(index[:len(index)-1])
 	if !strct.IsValid() {
