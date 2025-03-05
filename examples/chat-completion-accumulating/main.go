@@ -1,13 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"github.com/yao560909/deepseek-go"
 	"github.com/yao560909/deepseek-go/option"
-	"io"
-	"net/http"
 )
 
 func main() {
@@ -15,7 +11,7 @@ func main() {
 	client := deepseek.NewClient(apiKey)
 	ctx := context.Background()
 
-	question := "列出北京面积最大的5个区，并给出对应的天气情况"
+	question := "北京面积最大的5个区，面积从大到小排列，给出对应的天气情况"
 
 	print("> ")
 	println(question)
