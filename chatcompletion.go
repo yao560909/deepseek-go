@@ -2,6 +2,7 @@ package deepseek
 
 import (
 	"context"
+	"github.com/tidwall/sjson"
 	"github.com/yao560909/deepseek-go/internal/apijson"
 	"github.com/yao560909/deepseek-go/internal/param"
 	"github.com/yao560909/deepseek-go/internal/requestconfig"
@@ -50,13 +51,6 @@ type ChatCompletionNewParams struct {
 func (r ChatCompletionNewParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
-
-// The type of the content part.
-type ChatCompletionContentPartTextType string
-
-const (
-	ChatCompletionContentPartTextTypeText ChatCompletionContentPartTextType = "text"
-)
 
 type ChatCompletionUserMessageParam struct {
 	// The contents of the user message.
@@ -273,11 +267,34 @@ type chatCompletionMessageJSON struct {
 	ExtraFields      map[string]apijson.Field
 }
 
+func (r *ChatCompletionMessage) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r ChatCompletionMessage) MarshalJSON() (data []byte, err error) {
+	s := ""
+	s, _ = sjson.Set(s, "role", r.Role)
+
+	if len(r.ToolCalls) > 0 {
+		b, err := apijson.Marshal(r.ToolCalls)
+		if err != nil {
+			return nil, err
+		}
+		s, _ = sjson.SetRaw(s, "tool_calls", string(b))
+	} else {
+		s, _ = sjson.Set(s, "content", r.Content)
+	}
+
+	return []byte(s), nil
+}
+
 type ChatCompletionMessageRole string
 
 const (
 	ChatCompletionMessageRoleAssistant ChatCompletionMessageRole = "assistant"
 )
+
+func (r ChatCompletionMessage) implementsChatCompletionMessageParamUnion() {}
 
 type ChatCompletionMessageToolCall struct {
 	// The ID of the tool call.
@@ -295,6 +312,10 @@ type chatCompletionMessageToolCallJSON struct {
 	Type        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
+}
+
+func (r *ChatCompletionMessageToolCall) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type ChatCompletionMessageToolCallType string
@@ -545,3 +566,32 @@ type ChatCompletionToolType string
 const (
 	ChatCompletionToolTypeFunction ChatCompletionToolType = "function"
 )
+
+type ChatCompletionToolMessageParamRole string
+
+const (
+	ChatCompletionToolMessageParamRoleTool ChatCompletionToolMessageParamRole = "tool"
+)
+
+type ChatCompletionToolMessageParam struct {
+	// The contents of the tool message.
+	Content param.Field[string] `json:"content,required"`
+	// The role of the messages author, in this case `tool`.
+	Role param.Field[ChatCompletionToolMessageParamRole] `json:"role,required"`
+	// Tool call that this message is responding to.
+	ToolCallID param.Field[string] `json:"tool_call_id,required"`
+}
+
+func (r ChatCompletionToolMessageParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r ChatCompletionToolMessageParam) implementsChatCompletionMessageParamUnion() {}
+
+func ToolMessage(toolCallID, content string) ChatCompletionToolMessageParam {
+	return ChatCompletionToolMessageParam{
+		Role:       F(ChatCompletionToolMessageParamRoleTool),
+		ToolCallID: F(toolCallID),
+		Content:    F(content),
+	}
+}

@@ -34,13 +34,13 @@ func main() {
 	println(question)
 	println()
 
-	param := deepseek.ChatCompletionNewParams{
+	params := deepseek.ChatCompletionNewParams{
 		Messages: deepseek.F([]deepseek.ChatCompletionMessageParamUnion{
 			deepseek.UserMessage(question),
 		}),
 		Model: deepseek.F(deepseek.ChatModelDeepSeek_Chat),
 	}
-	completion, err := client.Chat.Completions.New(ctx, param)
+	completion, err := client.Chat.Completions.New(ctx, params)
 
 	if err != nil {
 		panic(err)

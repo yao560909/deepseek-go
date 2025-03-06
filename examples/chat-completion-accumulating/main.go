@@ -17,7 +17,7 @@ func main() {
 	println(question)
 	println()
 
-	param := deepseek.ChatCompletionNewParams{
+	params := deepseek.ChatCompletionNewParams{
 		Messages: deepseek.F([]deepseek.ChatCompletionMessageParamUnion{
 			deepseek.UserMessage(question),
 		}),
@@ -42,7 +42,7 @@ func main() {
 		}),
 	}
 
-	stream := client.Chat.Completions.NewStreaming(ctx, param)
+	stream := client.Chat.Completions.NewStreaming(ctx, params)
 
 	acc := deepseek.ChatCompletionAccumulator{}
 
