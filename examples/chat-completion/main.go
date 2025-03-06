@@ -28,7 +28,7 @@ func main() {
 	middleware := option.WithMiddleware(loggingMiddleware)
 	client := deepseek.NewClient(apiKey, middleware)
 	ctx := context.Background()
-	question := "帮我写一首四言绝句"
+	question := "帮我写一首五言绝句"
 
 	print("> ")
 	println(question)

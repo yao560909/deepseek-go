@@ -43,9 +43,10 @@ type ChatCompletionMessageParamUnion interface {
 }
 
 type ChatCompletionNewParams struct {
-	Messages param.Field[[]ChatCompletionMessageParamUnion] `json:"messages,required"`
-	Model    param.Field[ChatModel]                         `json:"model,required"`
-	Tools    param.Field[[]ChatCompletionToolParam]         `json:"tools"`
+	Messages       param.Field[[]ChatCompletionMessageParamUnion]          `json:"messages,required"`
+	Model          param.Field[ChatModel]                                  `json:"model,required"`
+	Tools          param.Field[[]ChatCompletionToolParam]                  `json:"tools"`
+	ResponseFormat param.Field[ChatCompletionNewParamsResponseFormatUnion] `json:"response_format"`
 }
 
 func (r ChatCompletionNewParams) MarshalJSON() (data []byte, err error) {
@@ -594,4 +595,8 @@ func ToolMessage(toolCallID, content string) ChatCompletionToolMessageParam {
 		ToolCallID: F(toolCallID),
 		Content:    F(content),
 	}
+}
+
+type ChatCompletionNewParamsResponseFormatUnion interface {
+	ImplementsChatCompletionNewParamsResponseFormatUnion()
 }
