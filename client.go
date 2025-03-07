@@ -8,6 +8,7 @@ import (
 type Client struct {
 	Options []option.RequestOption
 	Chat    *ChatService
+	Beta    *BetaService
 }
 
 func NewClient(opts ...option.RequestOption) (r *Client) {
@@ -20,6 +21,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 		Options: opts,
 	}
 	r.Chat = NewChatService(opts...)
+	r.Beta = NewBetaService(opts...)
 
 	return
 }
